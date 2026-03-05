@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ქართული პრეზენტაცია · ქალაქების კარატი</title>
+    <style>
+        /* RESET + GLOBAL */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            background: #0b0f1a;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s;
+        }
+
+        /* მთავარი გვერდის სტილი — ისეთი, თითქოს საიტის ნაწილი არ არის, მხოლოდ ბარათები */
+        .landing {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            padding: 3rem 1.5rem;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #1e2a3a, #0a0e15);
+            perspective: 1200px;
+        }
+
+        /* ბარათი ისე, როგორც ფოტოზეა მოცემული (მსგავსი სტილით) */
+        /* მთავარი 4 ბარათის სტილი — გასწორებული და გადიდებული */
+.city-card {
+    width: 320px;
+    height: 420px;
+    background: rgba(20, 30, 45, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 42px 12px 42px 12px;
+    box-shadow: 0 30px 40px -20px rgba(0,0,0,0.8), 0 0 0 2px rgba(255,215,0,0.1) inset;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1.8rem 1rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    text-shadow: 0 2px 5px #00000080;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transform-style: preserve-3d;
+    background: linear-gradient(145deg, #16222e, #1f2c3a);
+}
+
+.city-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, transparent 30%, rgba(255,215,0,0.15) 90%);
+    opacity: 0.3;
+    transition: 0.6s;
+}
+
+.city-card:hover {
+    transform: translateY(-18px) rotateX(4deg) scale(1.02);
+    border-color: #ffd966;
+    box-shadow: 0 40px 50px -10px #000, 0 0 30px #ffd90060;
+}
+
+.city-card:active {
+    transform: scale(0.98);
+}
+
+.city-name {
+    font-size: 2.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff8e7, #ffdb9f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: rgb(255, 229, 172);
+    margin-bottom: 0.5rem;
+    z-index: 2;
+    position: relative;
+    letter-spacing: 4px;
+    filter: drop-shadow(0 4px 4px black);
+    line-height: 1.1;
+}
+
+.city-sub {
+    font-size: 1.2rem;
+    color: #ffd966;
+    z-index: 2;
+    position: relative;
+    text-transform: uppercase;
+    border-top: 1px dashed #ffd96680;
+    padding-top: 0.7rem;
+    width: 80%;
+}
+
+/* დიდ ეკრანზე კიდევ უფრო გადიდება */
+@media (min-width: 1800px) {
+    .city-card {
+        width: 380px;
+        height: 480px;
+    }
+    .city-name {
+        font-size: 3.3rem;
+    }
+    .city-sub {
+        font-size: 1.4rem;
+    }
+}
+
+/* პატარა ეკრანებზე დაპატარავება */
+@media (max-width: 700px) {
+    .city-card {
+        width: 280px;
+        height: 360px;
+    }
+    .city-name {
+        font-size: 2.5rem;
+    }
+}
+
+        /* ქვეგვერდი / პრეზენტაციის ვიუ — აბსოლუტურად არ ჰგავს ვებსაიტს */
+        .presentation-page {
+            display: none; /* თავიდან დამალული */
+            min-height: 100vh;
+            width: 100%;
+            background: #101624;
+            background-image: radial-gradient(circle at 30% 40%, #2a3347 0%, #0b0f17 90%);
+            padding: 2rem 3rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            opacity: 0;
+            transition: opacity 1s ease;
+            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.2);
+        }
+
+        .presentation-page.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* პრეზენტაციის სლაიდების კონტეინერი — 6 პუნქტი */
+        .pres-slides {
+            max-width: 1400px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem 1.8rem;
+            margin-top: 3rem;
+            perspective: 800px;
+        }
+
+        /* თითოეული პუნქტი — როგორც პრეზენტაციის სლაიდი */
+        .slide-item {
+            background: rgba(15, 22, 35, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 220, 120, 0.25);
+            border-radius: 30px 8px 30px 8px;
+            padding: 1.6rem 1.2rem 2rem 1.2rem;
+            box-shadow: 0 35px 50px -30px #000000cc, 0 0 0 1px #ffd96630 inset;
+            transition: transform 0.5s ease, box-shadow 0.4s;
+            animation: slideUp 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(40px) scale(0.96);
+            animation-fill-mode: forwards;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ანიმაციის დაყოვნება თითოეული სლაიდისთვის */
+        .slide-item:nth-child(1) { animation-delay: 0.1s; }
+        .slide-item:nth-child(2) { animation-delay: 0.25s; }
+        .slide-item:nth-child(3) { animation-delay: 0.4s; }
+        .slide-item:nth-child(4) { animation-delay: 0.55s; }
+        .slide-item:nth-child(5) { animation-delay: 0.7s; }
+        .slide-item:nth-child(6) { animation-delay: 0.85s; }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(50px) scale(0.9); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .slide-item:hover {
+            transform: scale(1.02) translateY(-6px);
+            box-shadow: 0 45px 60px -20px black, 0 0 0 2px #ffd966;
+        }
+
+        /* სათაური პრეზენტაციის შიგნით (ქალაქის სახელი) */
+        .pres-city-title {
+            font-size: 5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: linear-gradient(145deg, #f5e7c8, #ffbc6c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px #ffa726, 0 4px 15px #00000070;
+            letter-spacing: 8px;
+            margin-bottom: 0.5rem;
+            border-bottom: 3px solid #ffd966;
+            padding-bottom: 0.3rem;
+            width: fit-content;
+            align-self: flex-start;
+            animation: fadeGlow 1.4s;
+        }
+
+        @keyframes fadeGlow {
+            0% { opacity: 0; letter-spacing: 20px; filter: blur(6px); }
+            100% { opacity: 1; letter-spacing: 8px; filter: blur(0); }
+        }
+
+        .pres-sub {
+            color: #bcb28b;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            font-style: italic;
+            border-left: 6px solid #dbb257;
+            padding-left: 1.5rem;
+            background: linear-gradient(90deg, #1e2638, transparent);
+            width: 100%;
+        }
+
+        /* სლაიდის შიგთავსი: სათაური + ფოტო */
+        .slide-title {
+            font-size: 1.9rem;
+            font-weight: 600;
+            color: #fadfad;
+            margin-bottom: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-left: 6px solid #ffb347;
+            padding-left: 1rem;
+            text-shadow: 0 2px 5px black;
+        }
+
+        .slide-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 24px 6px 24px 6px;
+            box-shadow: 0 25px 30px -15px black, inset 0 0 30px #00000070;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            background-color: #2d3445;
+            background-blend-mode: overlay;
+        }
+
+        .slide-image:hover {
+            border-color: #ffcf8a;
+            transform: scale(1.01);
+            box-shadow: 0 30px 40px -10px black;
+        }
+
+        /* ნავიგაცია - ისრები და ღილაკი უკან */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 3rem;
+            padding: 0 1rem;
+        }
+
+        .back-button {
+            background: transparent;
+            border: 2px solid #e9c46a;
+            color: #e9c46a;
+            padding: 0.8rem 2.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            border-radius: 50px 8px 50px 8px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 10px 20px -8px #000;
+        }
+
+        .back-button:hover {
+            background: #e9c46a;
+            color: #0b0f17;
+            border-color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #f1c40f;
+        }
+
+        /* ფიქსირებული პატარა ინდიკატორი */
+        .presentation-indicator {
+            color: #c5b58b;
+            font-size: 1.2rem;
+            font-weight: 300;
+            display: flex;
+            gap: 12px;
+            border-top: 1px dashed #5f5e4c;
+            padding-top: 1rem;
+        }
+
+        /* დამალვა/ჩვენება კლასები */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ფოტოების მრავალფეროვნებისთვის (ქალაქების ფოტოები) */
+        /* ვიყენებთ ფონად unsplash-ის მსგავს სურათებს (მხოლოდ მაგალითი) */
+    </style>
+</head>
+<body>
+    <!-- მთავარი გვერდი (ბარათები) -->
+    <div id="landingPage" class="landing">
+        <!-- ბათუმი -->
+        <div class="city-card" style="background-image: url('batumi.jpg');object-fit: cover; background-position: center;" data-city="batumi">
+            <div class="city-name">ბათუმი</div>
+            <div class="city-sub">შავი ზღვის მარგალიტი</div>
+        </div>
+        <!-- გურია -->
+        <div class="city-card" style="background-image: url('guria.jpg');object-fit: cover; background-position: center;" data-city="guria">
+            <div class="city-name">გურია</div>
+            <div class="city-sub">მწვანე ოაზისი</div>
+        </div>
+        <!-- ფოთი -->
+        <div class="city-card" style="background-image: url('foti.jpg');object-fit: cover; background-position: center;" data-city="poti">
+            <div class="city-name">ფოთი</div>
+            <div class="city-sub">ნავსადგური და ჭაობები</div>
+        </div>
+        <!-- ზუგდიდი -->
+        <div class="city-card" style="background-image: url('zugdidi.jpg');object-fit: cover; background-position: center;" data-city="zugdidi">
+            <div class="city-name">ზუგდიდი</div>
+            <div class="city-sub">დადიანების სამშობლო</div>
+        </div>
+    </div>
+
+    <div id="presentationContainer" class="presentation-page">
+        
+    </div>
+
+    <script>
+        (function() {
+            const citiesData = {
+                batumi: {
+                    name: 'ბათუმი',
+                    slides: [
+                        { title: 'შპს მეტრიუმ ჯგუფი', image: 'img1.jpg' },
+                        { title: 'შპს დადე 2024', image: 'img2.jpg' },
+                        { title: 'შპს დადე 2024', image: 'img3.jpg' },
+                        { title: 'შპს გეო-ლეგი', image: 'img4.jpg' },
+                        { title: 'შპს გეო-ლეგი', image: 'img5.jpg' },
+                        { title: 'შპს თა 8 დე', image: 'img6.jpg' },
+                        { title: 'შპს თა 8 დე', image: 'img7.jpg' },
+                        { title: 'ზვიად ნურიძე', image: 'img8.jpg' },
+                        { title: 'შპს მმმ ჯგუფი', image: 'img19.jpg' },
+                        { title: 'შპს მმმ ჯგუფი', image: 'img20.jpg' }
+                        
+                    ]
+                },
+                guria: {
+                    name: 'გურია',
+                    slides: [
+                        { title: 'ღლონტი გიორგი', image: 'img9.jpg' },
+                        { title: 'ბახმარო', image: 'https://images.unsplash.com/photo-1624789432673-5ef4b2bb0f0a?w=600&auto=format&fit=crop' },
+                        { title: 'ლიხაურის ციხე', image: 'https://images.unsplash.com/photo-1612872808080-62cb0b22c8af?w=600&auto=format&fit=crop' },
+                        { title: 'ჩოხატაური', image: 'https://images.unsplash.com/photo-1559583109-3e7960136e99?w=600&auto=format&fit=crop' },
+                        { title: 'გურიული ცეკვა', image: 'https://images.unsplash.com/photo-1547153760-18fc8636b5c6?w=600&auto=format&fit=crop' },
+                        { title: 'მთის პეიზაჟი', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&auto=format&fit=crop' }
+                    ]
+                },
+                poti: {
+                    name: 'ფოთი',
+                    slides: [
+                        { title: 'შპს ღალიცგა', image: 'img10.jpg' },
+                        { title: 'შპს ნადა', image: 'img11.jpg' },
+                        { title: 'შპს აგორა', image: 'img12.jpg' },
+                        { title: 'პალიასტომი', image: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&auto=format&fit=crop' },
+                        { title: 'მზის ჩასვლა', image: 'https://images.unsplash.com/photo-1510784722466-f2aa9c52fff6?w=600&auto=format&fit=crop' },
+                        { title: 'თევზჭერა', image: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=600&auto=format&fit=crop' }
+                    ]
+                },
+                zugdidi: {
+                    name: 'ზუგდიდი',
+                    slides: [
+                        { title: 'შპს რედბილდი', image: 'img13.jpg' },
+                        { title: 'შპს ევრო ჰაუსი', image: 'img14.jpg' },
+                        { title: 'შპს ევრო ჰაუსი', image: 'img15.jpg' },
+                        { title: 'შპს ევრო ჰაუსი', image: 'img16.jpg' },
+                        { title: 'შპს ევრო ჰაუსი', image: 'img17.jpg' },
+                        { title: 'შპს ევრო ჰაუსი', image: 'img18.jpg' }
+                    ]
+                }
+            };
+
+            // ელემენტები
+            const landing = document.getElementById('landingPage');
+            const presentationContainer = document.getElementById('presentationContainer');
+
+            // ყველა ბარათზე დაჭერის მოსმენა
+            document.querySelectorAll('.city-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const cityKey = card.dataset.city; // 'batumi', 'guria' და ა.შ.
+                    if (!cityKey || !citiesData[cityKey]) return;
+
+                    // დავმალოთ მთავარი გვერდი
+                    landing.style.display = 'none';
+                    // გავაქტიუროთ პრეზენტაციის კონტეინერი
+                    presentationContainer.classList.add('active');
+
+                    // ავაგოთ პრეზენტაციის HTML მოცემული ქალაქის მიხედვით
+                    const city = citiesData[cityKey];
+                    let slidesHtml = '';
+
+                    city.slides.forEach(slide => {
+                        slidesHtml += `
+                            <div class="slide-item">
+                                <div class="slide-title">${slide.title}</div>
+                                <div class="slide-image" style="background-image: url('${slide.image}');height:400px;object-fit:cover;"></div>
+                            </div>
+                        `;
+                    });
+
+                    const fullHtml = `
+                        <div style="width: 100%; animation: fadeGlow 1s;">
+                            <div class="pres-city-title">${city.name}</div>
+                            <div class="pres-sub">• 6 პუნქტი • პრეზენტაცია •</div>
+                        </div>
+                        <div class="pres-slides">
+                            ${slidesHtml}
+                        </div>
+                        <div class="nav-controls">
+                            <button class="back-button" id="backToLanding">← უკან</button>
+                            <div class="presentation-indicator">
+                                <span>✨ 6 სლაიდი</span>
+                                <span>📷 ${city.name}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    presentationContainer.innerHTML = fullHtml;
+
+                    // უკან დაბრუნების ღილაკზე მოსმენა
+                    document.getElementById('backToLanding').addEventListener('click', () => {
+                        presentationContainer.classList.remove('active');
+                        landing.style.display = 'flex'; // ისევ გამოჩნდეს მთავარი
+                        presentationContainer.innerHTML = ''; // გავწმინდოთ რომ მერე არ ერიოს
+                    });
+                });
+            });
+
+            // მთავარი გვერდის საწყისი ჩვენება (landing ხილულია)
+            landing.style.display = 'flex';
+            presentationContainer.classList.remove('active');
+        })();
+    </script>
+
+    <!-- იმისთვის, რომ უკან დაბრუნების შემდეგაც იმუშაოს ბარათებმა, 
+    ღილაკის დამატებისას ხელახლა ვუსმენთ — ახლა მოვათავსეთ ყველა ბარათზე ლისენერი თავიდანვე, 
+    და ახალი ბარათები არ ემატება, მხოლოდ იგივე რჩება. იდეალურია. -->
+</body>
+</html>
